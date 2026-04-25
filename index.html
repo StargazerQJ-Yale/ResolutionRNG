@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resolution Generator</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React UMD (stable browser build) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+</head>
+
+<body class="bg-black text-white">
+  <div id="root"></div>
+
+<script>
+const e = React.createElement;
+const { useState } = React;
+
+function roll(max) {
+  return Math.floor(Math.random() * max) + 1;
+}
+
+// --- DATA ---
+const SUBJECTS = ["Truth","Death","Patriotism","Freedom","Love","Honor","History","Memory","Justice","Art","Religion","Progress","Suffering","Happiness","Identity","Tradition","Technology","Nature","Civilization","Revolution"];
+
+const MODIFIERS = ["glorified","disguised","institutionalized","commodified","weaponized","performative","hollow","decadent","inevitable","misunderstood","obsolete","sacred"];
+
+const PREDICATES = ["violence","suicide","branding","theater","control","nostalgia","entropy","denial","tyranny","myth","cowardice","addiction","ritual","propaganda","self-harm","illusion","conformity","bargaining","spectacle","decay"];
+
+const ACTIONS = ["Mandate","Abolish","Nationalize","Privatize","Legalize","Criminalize","Subsidize","Tax","Ban","Open","Close","Automate","Quintenize"];
+
+const OBJECTS = ["voting","grief","marriage","lying","nostalgia","childhood","the afterlife","art","friendship","ambition","religion","death","the news","the internet","happiness","silence","memory","dreams","history","irony"];
+
+const FIGURES = ["Prometheus","Theseus","Romeo and Juliet","Socrates","Oedipus","Achilles","Eve","Hamlet","Odysseus","Narcissus","Faust","Pandora","Icarus","Job","Aaron Yejoon Lee","Sisyphus","Antigone","Orpheus","Medea","King Midas","Nero"];
+
+const JUDGMENTS = ["be condemned","be forgiven","be forgotten","be imitated","be erased","be institutionalized","be exiled","be celebrated","be censored","be mechanized","become Russian","become whatever Govind is"];
+
+const BASE_PHRASES = ["The truth will set you free","Power corrupts","Time heals all wounds","Knowledge is power","Ignorance is bliss","Fortune favors the bold","The ends justify the means","Beauty is truth","Actions speak louder than words","You are what you eat","History repeats itself","Nothing is sacred","Im in mad love with the spring 2026 chancellor of cards and games Mr. Gonzales"];
+
+const COMMANDS = ["Raze","Reform","Eat","Forgive","Remember","Forget","Abolish","Let","Monetize","Outlaw","Silence","Close","Open","Audit","Rebrand","Digitize","Replace","Sanctify","Regulate","Nationalize","Italian Aristocratize"];
+
+const VICTIMS = ["Grief","death","the group chat","LinkedIn","the concept of closure","freshman year","The man","shame","the Roman Empire","the algorithm","dreams","the humanities","sincerity","boredom","the grindset","divine judgment","the Yale email system","vibes","love","the American Dream","God","Carthage"];
+
+// --- TESTS ---
+console.assert(roll(6) >= 1 && roll(6) <= 6, "roll() out of range");
+console.assert(SUBJECTS.includes("Truth"), "SUBJECTS missing");
+console.assert(ACTIONS.includes("Abolish"), "ACTIONS missing");
+
+function App() {
+  const [phase, setPhase] = useState("idle");
+  const [dice, setDice] = useState(null);
+  const [result, setResult] = useState("");
+  const [history, setHistory] = useState([]);
+
+  function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function generate() {
+    setPhase("rolling");
+    setResult("");
+
+    for (let i = 0; i < 10; i++) {
+      setDice(Math.floor(Math.random() * 6) + 1);
+      await sleep(80);
+    }
+
+    const d6 = roll(6);
+    setDice(d6);
+
+    setPhase("resolving");
+    await sleep(300);
+
+    let output = "";
+
+    if (d6 === 1) {
+      const x = SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)];
+      const m = MODIFIERS[Math.floor(Math.random() * MODIFIERS.length)];
+      const y = PREDICATES[Math.floor(Math.random() * PREDICATES.length)];
+      output = "Resolved: " + x + " is " + m + " " + y;
+    }
+
+    if (d6 === 2) {
+      const a = ACTIONS[Math.floor(Math.random() * ACTIONS.length)];
+      const o = OBJECTS[Math.floor(Math.random() * OBJECTS.length)];
+      output = "Resolved: " + a + " " + o;
+    }
+
+    if (d6 === 3) {
+      const f = FIGURES[Math.floor(Math.random() * FIGURES.length)];
+      const j = JUDGMENTS[Math.floor(Math.random() * JUDGMENTS.length)];
+      output = "Resolved: " + f + " must " + j;
+    }
+
+    if (d6 === 4) {
+      const base = BASE_PHRASES[Math.floor(Math.random() * BASE_PHRASES.length)];
+      output = "Resolved: " + base;
+    }
+
+    if (d6 === 5) {
+      const c = COMMANDS[Math.floor(Math.random() * COMMANDS.length)];
+      const v = VICTIMS[Math.floor(Math.random() * VICTIMS.length)];
+      output = "Resolved: " + c + " " + v;
+    }
+
+    if (d6 === 6) {
+      output = "Resolved: Everything is already a closed loop of meaning and collapse.";
+    }
+
+    setResult(output);
+    setHistory([output].concat(history.slice(0, 4)));
+    setPhase("idle");
+  }
+
+  return e("div", { className: "min-h-screen flex items-center justify-center p-6" },
+    e("div", { className: "w-full max-w-xl space-y-6 text-center" },
+
+      e("h1", { className: "text-3xl font-bold tracking-widest" }, "RESOLUTION GENERATOR"),
+
+      e("div", { className: "flex flex-col items-center space-y-4" },
+        e("div", { className: "text-7xl border-2 border-white w-28 h-28 flex items-center justify-center font-mono" }, dice ?? "?"),
+
+        e("button",
+          {
+            onClick: generate,
+            disabled: phase !== "idle",
+            className: "px-6 py-2 border border-white hover:bg-white hover:text-black transition"
+          },
+          phase === "rolling" ? "Rolling..." : "Roll Resolution"
+        )
+      ),
+
+      result && e("div", { className: "p-4 border border-white text-sm" }, result),
+
+      history.length > 0 && e("div", { className: "text-xs opacity-70 space-y-1" },
+        e("div", { className: "font-bold" }, "RECENT"),
+        history.map((h, i) => e("div", { key: i }, h))
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+</script>
+</body>
+</html>
